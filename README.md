@@ -11,8 +11,6 @@ This library is not and never will come close in API breadth, depth, or quality.
 - [TaglibSharp](https://github.com/mono/taglib-sharp)
 - [ID3.Net](https://github.com/JeevanJames/Id3)
 
-## License (Options)
+## License
 
-- Apache
-- AGPL
-- MIT
+This library is licensed under the MIT License.
