@@ -10,7 +10,7 @@ public struct Header
     /// <summary>
     /// The Identifier should always be "ID3" as we don't support any other header types
     /// </summary>
-    public readonly static byte[] Identifier = "ID3"u8.ToArray();
+    public static readonly byte[] Identifier = "ID3"u8.ToArray();
 
     /// <summary>
     /// This should always be 3 as we're only supporting ID3v2.3.n
