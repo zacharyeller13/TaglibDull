@@ -8,7 +8,7 @@ namespace TaglibDull.Frame;
 /// We do it this way instead of an Enum, because it's easier for <c>Span</c> and <c>byte[]</c> comparisons whereas
 /// enum members can only be easily converted to or cast as normal strings.
 /// </remarks>
-public static class FrameTypes
+public static class FrameType
 {
     // ReSharper disable InconsistentNaming
     public static ReadOnlySpan<byte> AENC => "AENC"u8;
@@ -85,4 +85,7 @@ public static class FrameTypes
     public static ReadOnlySpan<byte> WPAY => "WPAY"u8;
     public static ReadOnlySpan<byte> WPUB => "WPUB"u8;
     public static ReadOnlySpan<byte> WXXX => "WXXX"u8;
+
+    public static bool IsValid(string type) => typeof(FrameType).GetProperty(type) != null;
+    
 }
