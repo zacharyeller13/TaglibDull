@@ -1,6 +1,6 @@
 using System.Buffers.Binary;
 
-namespace TaglibDull;
+namespace TaglibDull.Frame;
 
 /// <summary>
 /// Represents an individual ID3v2 Frame Header.
