@@ -7,6 +7,7 @@ namespace TaglibDull.Frame;
 /// <remarks>
 /// We do it this way instead of an Enum, because it's easier for <c>Span</c> and <c>byte[]</c> comparisons whereas
 /// enum members can only be easily converted to or cast as normal strings.
+/// Then caching all the properties as a <c>HashSet&lt;byte[]&gt;</c> <see cref="Types"/> so we can do an easy <see cref="IsValid(ReadOnlySpan&lt;byte&gt;)"/> check
 /// </remarks>
 public static class FrameType
 {
@@ -86,6 +87,15 @@ public static class FrameType
     public static ReadOnlySpan<byte> WPUB => "WPUB"u8;
     public static ReadOnlySpan<byte> WXXX => "WXXX"u8;
 
-    public static bool IsValid(string type) => typeof(FrameType).GetProperty(type) != null;
-    
+    public static HashSet<byte[]> Types { get; } = SetTypes();
+
+    private static HashSet<byte[]> SetTypes()
+    {
+        var properties = typeof(FrameType).GetProperties();
+        return properties.Select(t => t.GetValue(null) as byte[]).ToHashSet()!;
+    }
+
+    public static bool IsValid(string type) => typeof(FrameType).GetProperty(type) is not null;
+
+    public static bool IsValid(ReadOnlySpan<byte> type) => Types.Contains(type.ToArray());
 }
