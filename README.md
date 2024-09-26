@@ -14,6 +14,11 @@ This library is not and never will come close in API breadth, depth, or quality.
 - [ID3.Net](https://github.com/JeevanJames/Id3)
 - [IDSharp](https://github.com/judwhite/IdSharp)
 
+## References
+
+- [ID3v2.3 Informal Standard](https://id3.org/id3v2.3.0)
+- [ID3 Developer Guide](https://id3.org/id3guide)
+
 ## License
 
 This library is licensed under the MIT License.
