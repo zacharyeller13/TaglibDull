@@ -464,7 +464,15 @@ public static class FrameType
     /// [#sec4.1 Unique file identifier]
     /// </summary>
     /// <remarks>
-    /// This frame's purpose is to be able to identify the audio file in a database that may contain more information relevant to the content. Since standardisation of such a database is beyond this document, all frames begin with a null-terminated string with a URL containing an email address, or a link to a location where an email address can be found, that belongs to the organisation responsible for this specific database implementation. Questions regarding the database should be sent to the indicated email address. The URL should not be used for the actual database queries. The string "http://www.id3.org/dummy/ufid.html" should be used for tests. Software that isn't told otherwise may safely remove such frames. The 'Owner identifier' must be non-empty (more than just a termination). The 'Owner identifier' is then followed by the actual identifier, which may be up to 64 bytes. There may be more than one "UFID" frame in a tag, but only one with the same 'Owner identifier'. 
+    /// This frame's purpose is to be able to identify the audio file in a database that may contain more information relevant to the content.
+    /// Since standardisation of such a database is beyond this document, all frames begin with a null-terminated string with a URL containing an email address,
+    /// or a link to a location where an email address can be found, that belongs to the organisation responsible for this specific database implementation.
+    /// Questions regarding the database should be sent to the indicated email address.
+    /// The URL should not be used for the actual database queries.
+    /// The string "http://www.id3.org/dummy/ufid.html" should be used for tests.
+    /// Software that isn't told otherwise may safely remove such frames. The 'Owner identifier' must be non-empty (more than just a termination).
+    /// The 'Owner identifier' is then followed by the actual identifier, which may be up to 64 bytes.
+    /// There may be more than one "UFID" frame in a tag, but only one with the same 'Owner identifier'. 
     /// </remarks>
     public static ReadOnlySpan<byte> UFID => "UFID"u8;
 
@@ -534,4 +542,6 @@ public static class FrameType
     public static bool IsValid(string type) => typeof(FrameType).GetProperty(type) is not null;
 
     public static bool IsValid(ReadOnlySpan<byte> type) => Types.Contains(type.ToArray());
+    
+    public static bool IsValidTextFrame(ReadOnlySpan<byte> data) => Types.Where(x => x[0] == (byte)'T').Contains(data.ToArray());
 }
