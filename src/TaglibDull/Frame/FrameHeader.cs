@@ -17,12 +17,27 @@ public struct FrameHeader
     public uint Size => _size;
     public ReadOnlySpan<byte> Flags => _flags;
 
+    /// <summary>
+    /// Size of a frame header
+    /// </summary>
+    /// <remarks>
+    /// Like the <see cref="Header.Size">Tag Header Size</see>, is always 10 for ID3 tags
+    /// </remarks>
+    public const uint FrameHeaderSize = 10;
+
     public FrameHeader(ReadOnlySpan<byte> data)
     {
+        if (data.Length < FrameHeaderSize)
+        {
+            throw new FormatException("Not enough bytes to determine frame header");
+        }
+
         if (!FrameType.IsValid(data[..4]))
         {
-            throw new FormatException($"Read non-standard or unsupported frame type {Encoding.UTF8.GetString(data[..4])}");
+            throw new FormatException(
+                $"Read non-standard or unsupported frame type {Encoding.UTF8.GetString(data[..4])}");
         }
+
         _frameId = data[..4].ToArray();
         _size = BinaryPrimitives.ReadUInt32BigEndian(data[4..8]);
         _flags = data[8..10].ToArray();
