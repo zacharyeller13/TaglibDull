@@ -14,6 +14,10 @@ public struct FrameHeader
     private readonly byte[] _flags;
 
     public ReadOnlySpan<byte> FrameId => _frameId;
+    
+    /// <summary>
+    /// Size of a specific <c>Frame</c> less the size of a <c>FrameHeader</c>. (frame size - 10)
+    /// </summary>
     public uint Size => _size;
     public ReadOnlySpan<byte> Flags => _flags;
 
