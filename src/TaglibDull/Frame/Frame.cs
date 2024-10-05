@@ -7,4 +7,9 @@ namespace TaglibDull.Frame;
 public abstract class Frame
 {
     public FrameHeader Header { get; }
+
+    protected Frame(ReadOnlySpan<byte> data)
+    {
+        Header = new FrameHeader(data);
+    }
 }
