@@ -1,18 +1,19 @@
 namespace TaglibDull.Frame;
 
 /// <summary>
-/// A text information frame defined by any <see cref="FrameType"/> starting with 'T' except "TXXX"
+/// A text information frame defined by <see cref="FrameType"/> <see cref="FrameType.TXXX"/>
 /// </summary>
 /// <remarks>
-/// The text information frames are the most important frames, containing information like artist, album and more.
-/// There may only be one text information frame of its kind in an tag.
-/// If the textstring is followed by a termination ($00 (00)) all the following information should be ignored and not be displayed. 
+/// Doesn't inherit from TextInformationFrame b/c that is I think an overly complex inheritance structure.  We can just copy a few fields.
+/// As spec states, we can have many TXXX tags, but only one of each <see cref="Description"/>.  This will be handled by
+/// any class that uses this one.
 /// </remarks>
-public class TextInformationFrame : Frame
+public class UserTextInformationFrame : Frame
 {
     private readonly byte[]? _unicodeBOM = null;
 
-    private readonly byte[] _information;
+    private readonly byte[] _description;
+    private readonly byte[] _value;
 
     /// <summary>
     /// Represents text encoding for this frame.
@@ -35,6 +36,12 @@ public class TextInformationFrame : Frame
     /// <item><term>0xFE 0xFF</term><description>LittleEndian</description></item>
     /// </list>
     public ReadOnlySpan<byte> UnicodeBOM => _unicodeBOM ?? ReadOnlySpan<byte>.Empty;
+    
+    /// <summary>
+    /// Null byte terminated description of the user-defined text frame
+    /// &lt;text string according to encoding&gt; $00 (00)
+    /// </summary>
+    public ReadOnlySpan<byte> Description => _description;
 
     /// <summary>
     /// Text string according to encoding excluding the <see cref="UnicodeBOM"/>
@@ -42,9 +49,9 @@ public class TextInformationFrame : Frame
     /// <remarks>
     /// If empty it will be something like <c>0x00 0x00</c>
     /// </remarks>
-    public ReadOnlySpan<byte> Information => _information;
-
-    public TextInformationFrame(ReadOnlySpan<byte> data) : base(data)
+    public ReadOnlySpan<byte> Value => _value;
+    
+    public UserTextInformationFrame(ReadOnlySpan<byte> data) : base(data)
     {
     }
 }
