@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Folder Name="/src/">
+    <Project Path="src\TaglibDull\TaglibDull.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\TaglibDull.Tests\TaglibDull.Tests.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>
