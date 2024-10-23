@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Text;
+
 namespace TaglibDull.Frame;
 
 /// <summary>
@@ -10,7 +13,7 @@ namespace TaglibDull.Frame;
 /// </remarks>
 public class TextInformationFrame : Frame
 {
-    private readonly byte[]? _unicodeBOM = null;
+    private readonly byte[]? _unicodeBOM;
 
     private readonly byte[] _information;
 
@@ -23,7 +26,10 @@ public class TextInformationFrame : Frame
     /// </list>
     /// <remarks>
     /// All numeric strings and URLs are always encoded as ISO-8859-1. Terminated strings are terminated with 0x00 if encoded with ISO-8859-1 and 0x00 0x00 if encoded as unicode.
-    /// If nothing else is said newline character is forbidden. In ISO-8859-1 a new line is represented, when allowed, with 0x0A only. Frames that allow different types of text encoding have a text encoding description byte directly after the frame size. If ISO-8859-1 is used this byte should be 00, if Unicode is used it should be 0x01. Any empty Unicode strings which are NULL-terminated may have the Unicode BOM followed by a Unicode NULL (0xFF 0xFE 0x00 0x00, or 0xFE 0xFF 0x00 0x00). 
+    /// If nothing else is said newline character is forbidden. In ISO-8859-1 a new line is represented, when allowed, with 0x0A only. 
+    /// Frames that allow different types of text encoding have a text encoding description byte directly after the frame size. 
+    /// If ISO-8859-1 is used this byte should be 00, if Unicode is used it should be 0x01.
+    /// Any empty Unicode strings which are NULL-terminated may have the Unicode BOM followed by a Unicode NULL (0xFF 0xFE 0x00 0x00, or 0xFE 0xFF 0x00 0x00). 
     /// </remarks>
     public byte TextEncoding { get; }
 
@@ -46,5 +52,48 @@ public class TextInformationFrame : Frame
 
     public TextInformationFrame(ReadOnlySpan<byte> data) : base(data)
     {
+        // TextEncoding should always come right after the last FrameHeader, so 0-based index should always be
+        // at the index immediately after FrameHeader ends
+        int currentByte = (int)FrameHeader.FrameHeaderSize;
+        
+        if (!FrameType.IsValidTextFrame(Header.FrameId))
+        {
+            throw new FormatException($"FrameType {Encoding.UTF8.GetString(Header.FrameId)} is not a valid Text Information Frame");
+        }
+
+        TextEncoding = data[currentByte++];
+        if (TextEncoding > 0x01)
+        {
+            // TODO: Just fall back to ISO instead
+            throw new FormatException("Text encoding must be either 0x00 (ISO-8859-1) or 0x01 (Unicode)");
+        }
+
+        Debug.Assert(TextEncoding is 0x00 or 0x01, "Text encoding isn't 0x00 or 0x01");
+
+        // TODO: Determine end of text string based on encoding
+        // ISO == 0x00
+        // Unicode == 0x00 0x00
+        byte[] nullTerminator = [0x00];
+        if (TextEncoding == 0x01)
+        {
+            // Must be one of 0xFF 0xFE || 0xFE 0xFF
+            _unicodeBOM = data.Slice(currentByte, 2).ToArray();
+            Debug.Assert(UnicodeBOM.SequenceEqual<byte>([0xFF, 0xFE]) || UnicodeBOM.SequenceEqual<byte>([0xFE, 0xFF]),
+                "Unicode BOM isn't valid");
+            
+            // Move past the 2 bytes of Unicode BOM
+            currentByte += 2;
+            // Change what the null terminator is
+            nullTerminator = [0x00, 0x00];
+        }
+        
+        // Grab everything up to the null terminator
+        int nullTermIndex = data[currentByte..].IndexOf(nullTerminator);
+        Debug.Assert(nullTermIndex != -1, "There's no null terminator for some reason??");
+        _information = data[currentByte..nullTermIndex].ToArray();
+        
+        // All information should match the size FrameHeader tells us it is
+        uint dataSize = (uint)(_information.Length + sizeof(byte) + UnicodeBOM.Length);
+        Debug.Assert(dataSize == Header.Size, "Actual frame size doesn't match FrameHeader defined size.");
     }
 }
