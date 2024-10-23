@@ -544,8 +544,9 @@ public static class FrameType
     public static bool IsValid(string type) => typeof(FrameType).GetProperty(type) is not null;
 
     public static bool IsValid(ReadOnlySpan<byte> type) => Types.Contains(type.ToArray());
-    
-    public static bool IsValidTextFrame(ReadOnlySpan<byte> data) => Types.Where(x => x[0] == (byte)'T').Contains(data.ToArray());
+
+    public static bool IsValidTextFrame(ReadOnlySpan<byte> data) =>
+        Types.Where(x => x[0] == (byte)'T').Contains(data.ToArray(), new ByteArrayComparer());
 }
 
 public class ByteArrayComparer : IEqualityComparer<byte[]>
