@@ -90,7 +90,7 @@ public class TextInformationFrame : Frame
 
         // Get all data based on FrameHeader listed size; excluding the UnicodeBOM (if any) and TextEncoding bytes
         _information = data.Slice(currentByteIdx, (int)Header.Size - (UnicodeBOM.Length + sizeof(byte))).ToArray();
-        Debug.Assert(_information[^2..] != nullTerminator, "There's no null terminator for some reason??");
+        Debug.Assert(_information[^2..].SequenceEqual(nullTerminator), "There's no null terminator for some reason??");
 
 
         // All information should match the size FrameHeader tells us it is
