@@ -54,14 +54,15 @@ public class TextInformationFrame : Frame
     {
         // TextEncoding should always come right after the last FrameHeader, so 0-based index should always be
         // at the index immediately after FrameHeader ends
-        int currentByte = (int)FrameHeader.FrameHeaderSize;
-        
+        int currentByteIdx = (int)FrameHeader.FrameHeaderSize;
+
         if (!FrameType.IsValidTextFrame(Header.FrameId))
         {
-            throw new FormatException($"FrameType {Encoding.UTF8.GetString(Header.FrameId)} is not a valid Text Information Frame");
+            throw new FormatException(
+                $"FrameType {Encoding.UTF8.GetString(Header.FrameId)} is not a valid Text Information Frame");
         }
 
-        TextEncoding = data[currentByte++];
+        TextEncoding = data[currentByteIdx++];
         if (TextEncoding > 0x01)
         {
             // TODO: Just fall back to ISO instead
@@ -77,21 +78,21 @@ public class TextInformationFrame : Frame
         if (TextEncoding == 0x01)
         {
             // Must be one of 0xFF 0xFE || 0xFE 0xFF
-            _unicodeBOM = data.Slice(currentByte, 2).ToArray();
+            _unicodeBOM = data.Slice(currentByteIdx, 2).ToArray();
             Debug.Assert(UnicodeBOM.SequenceEqual<byte>([0xFF, 0xFE]) || UnicodeBOM.SequenceEqual<byte>([0xFE, 0xFF]),
                 "Unicode BOM isn't valid");
-            
+
             // Move past the 2 bytes of Unicode BOM
-            currentByte += 2;
+            currentByteIdx += 2;
             // Change what the null terminator is
             nullTerminator = [0x00, 0x00];
         }
-        
-        // Grab everything up to the null terminator
-        int nullTermIndex = data[currentByte..].IndexOf(nullTerminator);
-        Debug.Assert(nullTermIndex != -1, "There's no null terminator for some reason??");
-        _information = data[currentByte..nullTermIndex].ToArray();
-        
+
+        // Get all data based on FrameHeader listed size; excluding the UnicodeBOM (if any) and TextEncoding bytes
+        _information = data.Slice(currentByteIdx, (int)Header.Size - (UnicodeBOM.Length + sizeof(byte))).ToArray();
+        Debug.Assert(_information[^2..] != nullTerminator, "There's no null terminator for some reason??");
+
+
         // All information should match the size FrameHeader tells us it is
         uint dataSize = (uint)(_information.Length + sizeof(byte) + UnicodeBOM.Length);
         Debug.Assert(dataSize == Header.Size, "Actual frame size doesn't match FrameHeader defined size.");
