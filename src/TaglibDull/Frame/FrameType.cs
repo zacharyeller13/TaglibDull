@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace TaglibDull.Frame;
 
 /// <summary>
@@ -536,7 +538,7 @@ public static class FrameType
     private static HashSet<byte[]> SetTypes()
     {
         var properties = typeof(FrameType).GetProperties();
-        return properties.Select(t => t.GetValue(null) as byte[]).ToHashSet()!;
+        return properties.Select(t => Encoding.UTF8.GetBytes(t.Name)).ToHashSet(new ByteArrayComparer());
     }
 
     public static bool IsValid(string type) => typeof(FrameType).GetProperty(type) is not null;
@@ -544,4 +546,24 @@ public static class FrameType
     public static bool IsValid(ReadOnlySpan<byte> type) => Types.Contains(type.ToArray());
     
     public static bool IsValidTextFrame(ReadOnlySpan<byte> data) => Types.Where(x => x[0] == (byte)'T').Contains(data.ToArray());
+}
+
+public class ByteArrayComparer : IEqualityComparer<byte[]>
+{
+    public bool Equals(byte[]? x, byte[]? y)
+    {
+        if (x == null || y == null)
+        {
+            return x == y;
+        }
+
+        return x.AsSpan().SequenceEqual(y);
+    }
+
+    public int GetHashCode(byte[] obj)
+    {
+        HashCode hash = new();
+        hash.AddBytes(obj);
+        return hash.ToHashCode();
+    }
 }
