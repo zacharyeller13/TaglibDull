@@ -22,7 +22,7 @@ public class TestTextInformationFrames
             frameType: FrameType.TIT2, // TIT2
             size: [0, 0, 0, 41], // 41 bytes
             0, 0, // flags
-            0x01, 0xFF, 0xFE, // UTF16 BigEndian
+            0x01, 0xFF, 0xFE, // UTF16 LittleEndian
             67, 0, 104, 0, 97, 0, 110, 0, 103, 0, 101, 0, 115, 0, 32, 0, 40, 0, 111, 0, 114, 0, 105, 0, 103, 0, 105,
             0, 110, 0, 97, 0, 108, 0, 41, 0, // Changes (original)
             0x00, 0x00// Null Terminator for UTF16

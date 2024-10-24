@@ -37,8 +37,8 @@ public class TextInformationFrame : Frame
     /// The BOM when this text frame uses Unicode <see cref="TextEncoding"/> to signify byte order
     /// </summary>
     /// <list type="table">
-    /// <item><term>0xFF 0xFE</term><description>BigEndian</description></item>
-    /// <item><term>0xFE 0xFF</term><description>LittleEndian</description></item>
+    /// <item><term>0xFE 0xFF</term><description>BigEndian</description></item>
+    /// <item><term>0xFF 0xFE</term><description>LittleEndian</description></item>
     /// </list>
     public ReadOnlySpan<byte> UnicodeBOM => _unicodeBOM ?? ReadOnlySpan<byte>.Empty;
 
