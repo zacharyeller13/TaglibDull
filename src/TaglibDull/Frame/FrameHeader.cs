@@ -14,11 +14,12 @@ public struct FrameHeader
     private readonly byte[] _flags;
 
     public ReadOnlySpan<byte> FrameId => _frameId;
-    
+
     /// <summary>
     /// Size of a specific <c>Frame</c> less the size of a <c>FrameHeader</c>. (frame size - 10)
     /// </summary>
     public uint Size => _size;
+
     public ReadOnlySpan<byte> Flags => _flags;
 
     /// <summary>
@@ -33,7 +34,8 @@ public struct FrameHeader
     {
         if (data.Length < FrameHeaderSize)
         {
-            throw new FormatException("Not enough bytes to determine frame header");
+            throw new FormatException(
+                $"Not enough bytes to determine frame header. Needed {FrameHeaderSize}, got {data.Length}");
         }
 
         if (!FrameType.IsValid(data[..4]))
