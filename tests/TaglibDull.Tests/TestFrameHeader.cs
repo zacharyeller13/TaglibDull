@@ -6,7 +6,7 @@ public class TestFrameHeader
 {
     public static IEnumerable<object[]> FormatExceptionData =>
     [
-        [Array.Empty<byte>(), typeof(FormatException), "Not enough bytes to determine frame header"],
+        [Array.Empty<byte>(), typeof(FormatException), "Not enough bytes to determine frame header. Needed 10, got 0"],
         ["TEST0000000"u8.ToArray(), typeof(FormatException), "Read non-standard or unsupported frame type TEST"],
     ];
     
