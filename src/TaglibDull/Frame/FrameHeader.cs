@@ -21,6 +21,12 @@ public struct FrameHeader
     /// </summary>
     public uint Size => _size;
 
+    /// <summary>
+    /// Represents the FrameHeader flags. <see href="https://id3.org/id3v2.3.0#Frame_header_flags">ID3.org</see> 
+    /// </summary>
+    /// <remarks>
+    /// Not currently being parsed or validated - just passing straight through as a span of bytes.
+    /// </remarks>
     public ReadOnlySpan<byte> Flags => _flags;
 
     /// <summary>
