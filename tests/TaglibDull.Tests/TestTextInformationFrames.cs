@@ -14,11 +14,10 @@ public class TestTextInformationFrames
         Assert.Equal<object>(exceptionMessage, exception.Message);
     }
 
-    // TODO: Happy path tests
     [Fact]
     public void TestValidData()
     {
-        byte[] data = GenerateBytes(
+        byte[] data = ByteArrayHelpers.GenerateBytes(
             frameType: FrameType.TIT2, // TIT2
             size: [0, 0, 0, 41], // 41 bytes
             flags: [0, 0], // flags
@@ -34,20 +33,11 @@ public class TestTextInformationFrames
         Assert.Equal("Changes (original)\0", Encoding.Unicode.GetString(tit2.Information));
     }
 
-
-    private static byte[] GenerateBytes(ReadOnlySpan<byte> frameType, byte[]? size, byte[]? flags,
-        params byte[] additionalBytes)
-    {
-        List<byte> bytes = [..frameType.ToArray(), ..(size ?? [0, 0, 0, 0]), ..flags ?? [0, 0]];
-        bytes.AddRange(additionalBytes);
-        return bytes.ToArray();
-    }
-
     public static IEnumerable<object[]> FormatExceptionData =>
     [
         ["LINK0000000"u8.ToArray(), typeof(FormatException), "FrameType LINK is not a valid Text Information Frame"],
         [
-            GenerateBytes(FrameType.TIT2, size: null, flags: null, 0x02), typeof(FormatException),
+            ByteArrayHelpers.GenerateBytes(FrameType.TIT2, size: null, flags: null, 0x02), typeof(FormatException),
             "Text encoding must be either 0x00 (ISO-8859-1) or 0x01 (Unicode)"
         ]
     ];

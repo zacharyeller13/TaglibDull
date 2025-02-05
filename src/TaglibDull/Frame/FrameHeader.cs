@@ -3,6 +3,7 @@ using System.Text;
 
 namespace TaglibDull.Frame;
 
+// TODO: Consider if a fixed array and unsafe keyword would be applicable?
 /// <summary>
 /// Represents an individual ID3v2 Frame Header.
 /// <see href="https://id3.org/id3v2.3.0#ID3v2_frame_overview">ID3.org</see>

@@ -488,51 +488,69 @@ public static class FrameType
     /// </summary>
     public static ReadOnlySpan<byte> USLT => "USLT"u8;
 
+    #region URL link frames
+
     /// <summary>
     /// [#WCOM Commercial information]
+    /// The 'Commercial information' frame is a URL pointing at a webpage with information such as where the album can be bought.
+    /// There may be more than one "WCOM" frame in a tag, but not with the same content. 
     /// </summary>
     public static ReadOnlySpan<byte> WCOM => "WCOM"u8;
 
     /// <summary>
     /// [#WCOP Copyright/Legal information]
+    /// The 'Copyright/Legal information' frame is a URL pointing at a webpage where the terms of use and ownership of the file is described. 
     /// </summary>
     public static ReadOnlySpan<byte> WCOP => "WCOP"u8;
 
     /// <summary>
     /// [#WOAF Official audio file webpage]
+    /// The 'Official audio file webpage' frame is a URL pointing at a file specific webpage. 
     /// </summary>
     public static ReadOnlySpan<byte> WOAF => "WOAF"u8;
 
     /// <summary>
     /// [#WOAR Official artist/performer webpage]
+    /// The 'Official artist/performer webpage' frame is a URL pointing at the artists official webpage. There may be more than one "WOAR" frame in a tag if the audio contains more than one performer, but not with the same content. 
     /// </summary>
     public static ReadOnlySpan<byte> WOAR => "WOAR"u8;
 
     /// <summary>
     /// [#WOAS Official audio source webpage]
+    /// The 'Official audio source webpage' frame is a URL pointing at the official webpage for the source of the audio file, e.g. a movie. 
     /// </summary>
     public static ReadOnlySpan<byte> WOAS => "WOAS"u8;
 
     /// <summary>
     /// [#WORS Official internet radio station homepage]
+    /// The 'Official internet radio station homepage' contains a URL pointing at the homepage of the internet radio station.
     /// </summary>
     public static ReadOnlySpan<byte> WORS => "WORS"u8;
 
     /// <summary>
     /// [#WPAY Payment]
+    /// The 'Payment' frame is a URL pointing at a webpage that will handle the process of paying for this file. 
     /// </summary>
     public static ReadOnlySpan<byte> WPAY => "WPAY"u8;
 
     /// <summary>
     /// [#WPUB Publishers official webpage]
+    /// The 'Publishers official webpage' frame is a URL pointing at the official wepage for the publisher.
     /// </summary>
     public static ReadOnlySpan<byte> WPUB => "WPUB"u8;
 
     /// <summary>
     /// [#WXXX User defined URL link frame]
     /// </summary>
+    /// <remarks>
+    /// This frame is intended for URL links concerning the audiofile in a similar way to the other "W"-frames.
+    /// The frame body consists of a description of the string, represented as a terminated string, followed by the actual URL.
+    /// The URL is always encoded with ISO-8859-1. There may be more than one "WXXX" frame in each tag, but only one with the same description. 
+    /// </remarks>
     public static ReadOnlySpan<byte> WXXX => "WXXX"u8;
 
+    #endregion
+    
     public static HashSet<byte[]> Types { get; } = SetTypes();
 
     private static HashSet<byte[]> SetTypes()
