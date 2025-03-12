@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Text;
+
 namespace TaglibDull.Frame;
 
 /// <summary>
@@ -36,7 +39,7 @@ public class UserTextInformationFrame : Frame
     /// <item><term>0xFE 0xFF</term><description>LittleEndian</description></item>
     /// </list>
     public ReadOnlySpan<byte> UnicodeBOM => _unicodeBOM ?? ReadOnlySpan<byte>.Empty;
-    
+
     /// <summary>
     /// Null byte terminated description of the user-defined text frame
     /// &lt;text string according to encoding&gt; $00 (00)
@@ -50,8 +53,64 @@ public class UserTextInformationFrame : Frame
     /// If empty it will be something like <c>0x00 0x00</c>
     /// </remarks>
     public ReadOnlySpan<byte> Value => _value;
-    
+
     public UserTextInformationFrame(ReadOnlySpan<byte> data) : base(data)
     {
+        // TextEncoding should always come right after the last FrameHeader, so 0-based index should always be
+        // at the index immediately after FrameHeader ends
+        int currentByteIdx = (int)FrameHeader.FrameHeaderSize;
+
+        if (!FrameType.IsValidTextFrame(Header.FrameId))
+        {
+            throw new FormatException(
+                $"FrameType {Encoding.UTF8.GetString(Header.FrameId)} is not a valid Text Information Frame");
+        }
+
+        TextEncoding = data[currentByteIdx++];
+        if (TextEncoding > 0x01)
+        {
+            // TODO: Just fall back to ISO instead
+            throw new FormatException("Text encoding must be either 0x00 (ISO-8859-1) or 0x01 (Unicode)");
+        }
+
+        Debug.Assert(TextEncoding is 0x00 or 0x01, "Text encoding isn't 0x00 or 0x01");
+
+        // TODO: Determine end of text string based on encoding
+        // ISO == 0x00
+        // Unicode == 0x00 0x00
+        byte[] nullTerminator = [0x00];
+        int nullBomAdder = 0;
+        if (TextEncoding == 0x01)
+        {
+            // Must be one of 0xFF 0xFE || 0xFE 0xFF
+            _unicodeBOM = data.Slice(currentByteIdx, 2).ToArray();
+            Debug.Assert(UnicodeBOM.SequenceEqual<byte>([0xFF, 0xFE]) || UnicodeBOM.SequenceEqual<byte>([0xFE, 0xFF]),
+                "Unicode BOM isn't valid");
+
+            // Move past the 2 bytes of Unicode BOM
+            currentByteIdx += 2;
+            // Change what the null terminator is
+            nullTerminator = [0x00, 0x00];
+            // We need to check the BOM in order to grab the correct end position of the null terminator
+            if (UnicodeBOM.SequenceEqual<byte>([0xFF, 0xFE]))
+            {
+                // In this case it's 1 because we end up with the last UTF-16 char as 0x## 0x00 + 0x00 0x00 (null term)
+                // so 3 consecutive null bytes throws off the indexOf(nullTerminator) check
+                nullBomAdder = 1;
+            }
+        }
+
+        ReadOnlySpan<byte> descAndValue =
+            data.Slice(currentByteIdx, (int)Header.Size - (UnicodeBOM.Length + sizeof(byte)));
+
+        // currentByteIdx should be the start of the description
+        // and the first nullTerminator we find should be the end of the description
+        _description = descAndValue[..(descAndValue.IndexOf(nullTerminator) + nullTerminator.Length + nullBomAdder)].ToArray();
+
+        // value is from end of description to end of this tag
+        _value = descAndValue[_description.Length..].ToArray();
+        Debug.Assert(_description[^2..].SequenceEqual(nullTerminator),
+            "There's no description null terminator for some reason??");
+        Debug.Assert(_value[^2..].SequenceEqual(nullTerminator), "There's no value null terminator for some reason??");
     }
 }

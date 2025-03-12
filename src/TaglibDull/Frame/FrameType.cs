@@ -440,7 +440,8 @@ public static class FrameType
     /// [#TSEE Software/Hardware and settings used for encoding]
     /// </summary>
     /// <remarks>
-    /// The 'Software/Hardware and settings used for encoding' frame includes the used audio encoder and its settings when the file was encoded. Hardware refers to hardware encoders, not the computer on which a program was run. 
+    /// The 'Software/Hardware and settings used for encoding' frame includes the used audio encoder and its settings when the file was encoded. 
+    /// Hardware refers to hardware encoders, not the computer on which a program was run. 
     /// </remarks>
     public static ReadOnlySpan<byte> TSSE => "TSSE"u8;
 
@@ -456,7 +457,8 @@ public static class FrameType
     /// [#TXXX User defined text information frame]
     /// </summary>
     /// <remarks>
-    /// This frame is intended for one-string text information concerning the audiofile in a similar way to the other "T"-frames. The frame body consists of a description of the string, represented as a terminated string, followed by the actual string. There may be more than one "TXXX" frame in each tag, but only one with the same description.
+    /// This frame is intended for one-string text information concerning the audiofile in a similar way to the other "T"-frames. 
+    /// The frame body consists of a description of the string, represented as a terminated string, followed by the actual string. There may be more than one "TXXX" frame in each tag, but only one with the same description.
     /// </remarks>
     public static ReadOnlySpan<byte> TXXX => "TXXX"u8;
 
@@ -511,7 +513,8 @@ public static class FrameType
 
     /// <summary>
     /// [#WOAR Official artist/performer webpage]
-    /// The 'Official artist/performer webpage' frame is a URL pointing at the artists official webpage. There may be more than one "WOAR" frame in a tag if the audio contains more than one performer, but not with the same content. 
+    /// The 'Official artist/performer webpage' frame is a URL pointing at the artists official webpage. 
+    /// There may be more than one "WOAR" frame in a tag if the audio contains more than one performer, but not with the same content. 
     /// </summary>
     public static ReadOnlySpan<byte> WOAR => "WOAR"u8;
 
