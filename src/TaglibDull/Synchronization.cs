@@ -20,7 +20,7 @@ public static class Synchronization
         {
             throw new ArgumentException($"Caller provided {bytes.Length} bytes. Expected 4 bytes.", nameof(bytes));
         }
-        
+
         checked
         {
             uint intRepr = BinaryPrimitives.ReadUInt32BigEndian(bytes);

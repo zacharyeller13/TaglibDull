@@ -11,7 +11,7 @@ namespace TaglibDull.Frame;
 /// There may only be one text information frame of its kind in an tag.
 /// If the textstring is followed by a termination ($00 (00)) all the following information should be ignored and not be displayed. 
 /// </remarks>
-public class TextInformationFrame : Frame
+public class TextInformation : Frame
 {
     private readonly byte[]? _unicodeBOM;
 

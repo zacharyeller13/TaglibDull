@@ -4,19 +4,19 @@ using System.Text;
 namespace TaglibDull.Frame;
 
 /// <summary>
-/// A frame defined by any <see cref="FrameType"/> starting with 'W' except "WXXX", meant to hold dynamic data like webpages
-/// </summary> 
+/// A text information frame defined by <see cref="FrameType"/> <see cref="FrameType.TXXX"/>
+/// </summary>
 /// <remarks>
-/// There may only be one URL link frame of its kind in a tag, except when stated otherwise in the frame description.
-/// If the textstring is followed by a termination ($00 (00)) all the following information should be ignored and not be displayed. 
-/// All URL link frame identifiers begins with "W". Only URL link frame identifiers begins with "W".
+/// Doesn't inherit from TextInformationFrame b/c that is I think an overly complex inheritance structure.  We can just copy a few fields.
+/// As spec states, we can have many TXXX tags, but only one of each <see cref="Description"/>.  This will be handled by
+/// any class that uses this one.
 /// </remarks>
-public class UserUrlLinkFrame : Frame
+public class UserTextInformation : Frame
 {
     private readonly byte[]? _unicodeBOM = null;
 
     private readonly byte[] _description;
-    private readonly byte[] _url;
+    private readonly byte[] _value;
 
     /// <summary>
     /// Represents text encoding for this frame.
@@ -41,36 +41,38 @@ public class UserUrlLinkFrame : Frame
     public ReadOnlySpan<byte> UnicodeBOM => _unicodeBOM ?? ReadOnlySpan<byte>.Empty;
 
     /// <summary>
-    /// Null byte terminated description of the user-defined url frame.
-    /// There may be more than one "WXXX" frame in each tag, but only one with the same description.
+    /// Null byte terminated description of the user-defined text frame
     /// &lt;text string according to encoding&gt; $00 (00)
     /// </summary>
     public ReadOnlySpan<byte> Description => _description;
 
     /// <summary>
-    /// Text string, always encoded as ISO-8859-1
+    /// Text string according to encoding excluding the <see cref="UnicodeBOM"/>
     /// </summary>
     /// <remarks>
-    /// If empty it will be something like <c>0x00</c>
+    /// If empty it will be something like <c>0x00 0x00</c>
     /// </remarks>
-    public ReadOnlySpan<byte> Url => _url;
+    public ReadOnlySpan<byte> Value => _value;
 
-    public UserUrlLinkFrame(ReadOnlySpan<byte> data) : base(data)
+    public UserTextInformationFrame(ReadOnlySpan<byte> data) : base(data)
     {
-        // Check this is a valid User URL frame
-        if (!Header.FrameId.SequenceEqual(FrameType.WXXX))
+        // TextEncoding should always come right after the last FrameHeader, so 0-based index should always be
+        // at the index immediately after FrameHeader ends
+        int currentByteIdx = (int)FrameHeader.FrameHeaderSize;
+
+        if (!FrameType.IsValidTextFrame(Header.FrameId))
         {
             throw new FormatException(
-                $"FrameType {Encoding.UTF8.GetString(Header.FrameId)} is not a valid URL Link Frame");
+                $"FrameType {Encoding.UTF8.GetString(Header.FrameId)} is not a valid Text Information Frame");
         }
 
-        int currentByteIdx = (int)FrameHeader.FrameHeaderSize;
         TextEncoding = data[currentByteIdx++];
         if (TextEncoding > 0x01)
         {
             // TODO: Just fall back to ISO instead
             throw new FormatException("Text encoding must be either 0x00 (ISO-8859-1) or 0x01 (Unicode)");
         }
+
         Debug.Assert(TextEncoding is 0x00 or 0x01, "Text encoding isn't 0x00 or 0x01");
 
         // TODO: Determine end of text string based on encoding
@@ -98,20 +100,18 @@ public class UserUrlLinkFrame : Frame
             }
         }
 
-        ReadOnlySpan<byte> descAndUrl =
+        ReadOnlySpan<byte> descAndValue =
             data.Slice(currentByteIdx, (int)Header.Size - (UnicodeBOM.Length + sizeof(byte)));
 
         // currentByteIdx should be the start of the description
         // and the first nullTerminator we find should be the end of the description
-        _description = descAndUrl[..(descAndUrl.IndexOf(nullTerminator) + nullTerminator.Length + nullBomAdder)].ToArray();
+        _description = descAndValue[..(descAndValue.IndexOf(nullTerminator) + nullTerminator.Length + nullBomAdder)].ToArray();
 
         // value is from end of description to end of this tag
-        _url = descAndUrl[_description.Length..].ToArray();
+        _value = descAndValue[_description.Length..].ToArray();
 
         Debug.Assert(_description[^2..].SequenceEqual(nullTerminator),
             "There's no description null terminator for some reason??");
-
-        // This assert should be incorrect for Url frames since the URL is supposed to be ISO-8859-1 always
-        // Debug.Assert(_url[^2..].SequenceEqual(nullTerminator), "There's no value null terminator for some reason??");
+        Debug.Assert(_value[^2..].SequenceEqual(nullTerminator), "There's no value null terminator for some reason??");
     }
 }

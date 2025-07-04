@@ -10,7 +10,7 @@ namespace TaglibDull.Frame;
 /// If the textstring is followed by a termination ($00 (00)) all the following information should be ignored and not be displayed. 
 /// All URL link frame identifiers begins with "W". Only URL link frame identifiers begins with "W".
 /// </remarks>
-public class UrlLinkFrame : Frame
+public class UrlLink : Frame
 {
     private readonly byte[] _url;
 

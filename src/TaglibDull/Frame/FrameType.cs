@@ -15,7 +15,7 @@ public static class FrameType
 {
     // ReSharper disable InconsistentNaming
     /// <summary>
-    /// [[#sec4.20|Audio encryption]]
+    /// [#sec4.20 Audio encryption]
     /// </summary>
     public static ReadOnlySpan<byte> AENC => "AENC"u8;
 
@@ -553,7 +553,7 @@ public static class FrameType
     public static ReadOnlySpan<byte> WXXX => "WXXX"u8;
 
     #endregion
-    
+
     public static HashSet<byte[]> Types { get; } = SetTypes();
 
     private static HashSet<byte[]> SetTypes()

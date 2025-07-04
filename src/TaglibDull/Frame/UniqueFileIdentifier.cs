@@ -2,7 +2,7 @@ using System.Text;
 
 namespace TaglibDull.Frame;
 
-public class UniqueFileIdentifierFrame : Frame
+public class UniqueFileIdentifier : Frame
 {
     private readonly byte[] _ownerIdentifier;
     private readonly byte[] _identifier;
